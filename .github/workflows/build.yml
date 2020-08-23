@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+    paths-ignore:
+      - "*.md"
+      - "imgs/**"
+
+jobs:
+  build_cli:
+    name: Build CLI binary
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install deps for CLI
+        run: |
+          python -m pip install -r requirements-cli.txt
+          python -m pip install pyinstaller
+      - name: Build CLI
+        run: |
+          pyinstaller -F --add-data "resources-max.txt;." --add-data "resources-min.txt;." HorseHunter.py
+      - name: Upload CLI
+        uses: actions/upload-artifact@v1
+        with:
+          name: HorseHunter.exe
+          path: dist/HorseHunter.exe
+
+  build_gui:
+    name: Build GUI binary
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install deps for GUI
+        run: |
+          python -m pip install -r requirements-gui.txt
+          python -m pip install pyinstaller
+      - name: Build GUI
+        run: |
+          pyinstaller -F --add-data "resources-max.txt;." --add-data "resources-min.txt;." --noconsole HorseHunterGUI.py
+      - name: Upload GUI
+        uses: actions/upload-artifact@v1
+        with:
+          name: HorseHunterGUI.exe
+          path: dist/HorseHunterGUI.exe
